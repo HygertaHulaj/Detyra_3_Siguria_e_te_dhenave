@@ -49,3 +49,63 @@ function createUser(user, rinfo, key, iv) {
       return;
     }
   }
+  
+  users.push(user);
+  jsonDb.db.user = users;
+  xmlDb = convert.js2xml(jsonDb, options);
+
+  fs.writeFileSync("database.xml", xmlDb, (err) => {
+    if (err) {
+      sendEncrypted({type: 'register_err', info: 'ERROR IN USER CREATION'}, rinfo.port, rinfo.address, key, iv);
+      return;
+    }
+  });
+
+  sendEncrypted({type: 'register_ok', info: 'USER CREATED'}, rinfo.port, rinfo.address, key, iv);
+}
+
+function authenticate(user, rinfo, key, iv) {
+  const xmlDb = fs.readFileSync('database.xml', (err, data) => {
+    if (err) console.log(err.stack);
+  }).toString();
+
+  const options = {compact: true, ignoreComment: true, spaces: 2};
+  const jsonDb = convert.xml2js(xmlDb, options);
+
+  const users = toArray(jsonDb.db.user);
+  const usernames = users.map(u => u.username._text);
+  const passwords = users.map(u => u.password._text);
+
+  for (let i = 0; i < usernames.length; i++) {
+    if (usernames[i] == user.username) {
+      bcrypt.compare(user.password, passwords[i], function(err, res) {
+        if (res) {
+          delete users[i].password;
+          const token = jwt.sign(flattenTextNodes(users[i]), privateKey, {algorithm: 'RS256'});
+          sendEncrypted({type: 'login_ok', info: token }, rinfo.port, rinfo.address, key, iv);
+        }
+        else {
+          sendEncrypted({type: 'login_err', info: 'WRONG USERNAME OR PASSWORD'}, rinfo.port, rinfo.address, key, iv);
+        }
+      });
+      return;
+    }
+  }
+
+  sendEncrypted({type: 'login_err', info: 'WRONG USERNAME OR PASSWORD'}, rinfo.port, rinfo.address, key, iv);
+}
+
+function toArray(arg) {
+  if (Array.isArray(arg)) {
+    return arg
+  } else if (typeof arg !== 'undefined') {
+    return [arg]
+  } else {
+    return []
+  }
+}
+
+function sendEncrypted(message, port, ip, key, iv) {
+  const cipher = encodeDesCBC(JSON.stringify(message), key, iv);
+  server.send(Buffer.from(iv.toString('base64') + "." + cipher, 'utf8'), port, ip);
+}
