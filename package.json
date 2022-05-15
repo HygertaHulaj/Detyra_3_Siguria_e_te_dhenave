@@ -1,7 +1,7 @@
 {
   "name": "clientserver",
   "version": "1.0.0",
-  "description": "Projekti 2 ne lenden Siguria e te Dhenave",
+  "description": "Projekti 3 ne lenden Siguria e te Dhenave",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
