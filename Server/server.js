@@ -109,3 +109,38 @@ function sendEncrypted(message, port, ip, key, iv) {
   const cipher = encodeDesCBC(JSON.stringify(message), key, iv);
   server.send(Buffer.from(iv.toString('base64') + "." + cipher, 'utf8'), port, ip);
 }
+
+function decrypt(message) {
+  const msgArr = message.toString('utf8').split(".");
+  const iv = Buffer.from(msgArr[0], 'base64');
+  const rsaEncryptedKey = Buffer.from(msgArr[1], 'base64');
+  const encrypted = Buffer.from(msgArr[2], 'base64');
+  const desKey = crypto.privateDecrypt(privateKey.toString(), rsaEncryptedKey);
+  const decrypted = crypto.createDecipheriv('des-cbc', desKey, iv);
+  let d = decrypted.update(encrypted, 'base64', 'utf8');
+  d += decrypted.final('utf8');
+  return [d, desKey, iv];
+}
+
+function encodeDesCBC(textToEncode, key, iv) {
+  var cipher = crypto.createCipheriv('des-cbc', key, iv);
+  var c = cipher.update(textToEncode, 'utf8', 'base64');
+  c += cipher.final('base64');
+  return c;
+}
+
+function flattenTextNodes(data) {
+  if (typeof data === 'object' && !Array.isArray(data)) {
+    const keys = Object.keys(data)
+    if (keys.length === 1 && '_text' in data) {
+      return data._text
+    } else {
+      return keys.reduce((acc, key) => {
+        acc[key] = flattenTextNodes(data[key])
+        return acc
+      }, {})
+    }
+  } else {
+    return data;
+  }
+}
