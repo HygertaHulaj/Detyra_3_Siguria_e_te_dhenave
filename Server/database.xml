@@ -1,0 +1,23 @@
+<db>
+  <user>
+    <username>hygerta</username>
+    <password>$2b$10$ooOHzlqlxCLhtDrZpJlZbuT39mPIJQyttxg/jrJa4UR3X0.W9VjK2</password>
+    <id>200718100052</id>
+    <faculty>fiek</faculty>
+    <average>9</average>
+  </user>
+  <user>
+    <username>gresa</username>
+    <password>$2b$10$SDfXXWxLjyCMFl3d7mZbMe6s4kWHlsrpJuS2ATlWlmfJ.BnnexqIW</password>
+    <id>200714100020</id>
+    <faculty>FIEK</faculty>
+    <average>7</average>
+  </user>
+  <user>
+    <username>fisnik</username>
+    <password>$2b$10$blKaJ6DYZ4rYdT58AtZqAeIFA4U4SdDkQjFWoyCQLCYTpLyZUstI2</password>
+    <id>200714100007</id>
+    <faculty>FIEK</faculty>
+    <average>8</average>
+  </user>
+</db>
